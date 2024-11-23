@@ -1,0 +1,79 @@
+<form version="1.1" theme="dark">
+  <label>MQ Objects search</label>
+  <fieldset submitButton="true" autoRun="true">
+    <input type="text" token="search_key">
+      <label>Search Key</label>
+    </input>
+    <input type="dropdown" token="input_object_type">
+      <label>Object Type</label>
+      <choice value="*">ALL</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <fieldForLabel>object_type</fieldForLabel>
+      <fieldForValue>object_type</fieldForValue>
+      <search>
+        <query>index="mqobjects" | stats count by object_type</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="dropdown" token="input_qm_name">
+      <label>QM Name</label>
+      <choice value="*">ALL</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <fieldForLabel>qmname</fieldForLabel>
+      <fieldForValue>qmname</fieldForValue>
+      <search>
+        <query>index="mqobjects" | stats count by qmname</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="time" token="field1">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <search>
+          <query>index="mqobjects" $search_key$ object_type=$input_object_type$ qmname=$input_qm_name$ | stats dc(hostname)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="underLabel">Host(s)</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <search>
+          <query>index="mqobjects" $search_key$ object_type=$input_object_type$ qmname=$input_qm_name$  | stats dc(qmname)</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="underLabel">Queue Managers</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <search>
+          <query>index="mqobjects" $search_key$ object_type=$input_object_type$ qmname=$input_qm_name$  | stats count by hostname qmname object_type object_def | table hostname qmname object_type object_def </query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>
